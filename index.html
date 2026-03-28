@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gemini AI Summarizer Agent | Liton Hossain</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --bg-color: #121212;
+            --chat-bg: #1e1e1e;
+            --primary-color: #3b82f6;
+            --user-msg-bg: #2563eb;
+            --agent-msg-bg: #2d3748;
+            --text-color: #e5e7eb;
+            --border-color: #3f3f46;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            padding: 1rem;
+        }
+
+        .chat-container {
+            background-color: var(--chat-bg);
+            width: 100%;
+            max-width: 900px;
+            height: 90vh;
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            border: 1px solid var(--border-color);
+        }
+
+        .chat-header {
+            padding: 1rem 1.5rem;
+            background-color: #1a1a1a;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .chat-header h2 {
+            font-weight: 600;
+            font-size: 1.2rem;
+            color: var(--text-color);
+        }
+
+        .status-dot {
+            height: 10px;
+            width: 10px;
+            background-color: #10b981;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 8px;
+        }
+
+        .chat-messages {
+            flex: 1;
+            padding: 1.5rem;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .message {
+            max-width: 80%;
+            padding: 0.8rem 1rem;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            line-height: 1.5;
+            position: relative;
+        }
+
+        .message.user {
+            align-self: flex-end;
+            background-color: var(--user-msg-bg);
+            color: white;
+            border-bottom-right-radius: 2px;
+        }
+
+        .message.agent {
+            align-self: flex-start;
+            background-color: var(--agent-msg-bg);
+            color: var(--text-color);
+            border-bottom-left-radius: 2px;
+        }
+
+        .message .time {
+            font-size: 0.75rem;
+            opacity: 0.7;
+            margin-top: 5px;
+            display: block;
+        }
+
+        .loading {
+            display: none;
+            align-self: flex-start;
+            color: var(--text-color);
+            font-style: italic;
+            font-size: 0.85rem;
+            padding: 0.5rem;
+        }
+
+        .chat-input {
+            padding: 1rem;
+            background-color: #1a1a1a;
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            gap: 0.8rem;
+        }
+
+        textarea {
+            flex: 1;
+            padding: 0.8rem;
+            background-color: #262626;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            color: var(--text-color);
+            resize: none;
+            font-size: 0.95rem;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        textarea:focus {
+            border-color: var(--primary-color);
+        }
+
+        button {
+            padding: 0 1.5rem;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            font-size: 0.95rem;
+        }
+
+        button:hover {
+            background-color: #2563eb;
+        }
+
+        button:disabled {
+            background-color: #52525b;
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="chat-container">
+        <div class="chat-header">
+            <h2>Gemini Summarizer AI</h2>
+            <div>
+                <span class="status-dot"></span>
+                <span style="font-size: 0.8rem; opacity: 0.8;">Online | Developer: Liton Hossain</span>
+            </div>
+        </div>
+
+        <div class="chat-messages" id="chatMessages">
+            <div class="message agent">
+                Hello! I am your Gemini AI Assistant. I can help you with text summarization, answering questions, or
+                classifying text. Please type your request below, and I'll get started
+                <span class="time" id="currentTime"></span>
+            </div>
+        </div>
+
+        <div class="loading" id="loading">Gemini is thinking...</div>
+
+        <div class="chat-input">
+            <textarea id="userInput" placeholder="Paste your paragraph here..." rows="3"></textarea>
+            <button id="sendBtn">Summarize</button>
+        </div>
+    </div>
+
+    <script>
+        //Ngrok link (with protocol)
+        const NGROK_URL = 'https://proindustrialisation-fillingly-jerrica.ngrok-free.dev';
+
+        const chatMessages = document.getElementById('chatMessages');
+        const userInput = document.getElementById('userInput');
+        const sendBtn = document.getElementById('sendBtn');
+        const loading = document.getElementById('loading');
+
+        // Set current time
+        document.getElementById('currentTime').innerText = new Date().toLocaleTimeString();
+
+        // Function to add message
+        function addMessage(text, sender) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${sender}`;
+
+            const timeSpan = document.createElement('span');
+            timeSpan.className = 'time';
+            timeSpan.innerText = new Date().toLocaleTimeString();
+
+            messageDiv.innerHTML = text;
+            messageDiv.appendChild(timeSpan);
+
+            chatMessages.appendChild(messageDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        // Function to call API
+        async function getSummary(text) {
+            loading.style.display = 'block';
+            sendBtn.disabled = true;
+
+            try {
+                const response = await fetch(`${NGROK_URL}/agent`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ text: text })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const data = await response.json();
+
+                if (data && data.status === 'success') {
+                    addMessage(data.agent_response, 'agent');
+                } else {
+                    addMessage('Sorry, Gemini could not create the summary.', 'agent');
+                }
+
+            } catch (error) {
+                console.error('Error:', error);
+                addMessage(`Error: ${error.message}`, 'agent');
+            } finally {
+                loading.style.display = 'none';
+                sendBtn.disabled = false;
+                userInput.focus();
+            }
+        }
+
+        // Send button click event
+        sendBtn.addEventListener('click', () => {
+            const text = userInput.value.trim();
+            if (text) {
+                addMessage(text, 'user');
+                userInput.value = '';
+                getSummary(text);
+            }
+        });
+
+        // Enter key to send message
+        userInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendBtn.click();
+            }
+        });
+
+    </script>
+</body>
+
+</html>
