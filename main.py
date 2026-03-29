@@ -1,5 +1,5 @@
 import os
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, render_template
 from flask_cors import CORS
 import google.generativeai as genai
 from dotenv import load_dotenv
@@ -8,18 +8,18 @@ from dotenv import load_dotenv
 load_dotenv()
 genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
 
-app = Flask(__name__)
+app = Flask(__name__, template_folder='templates')
 CORS(app)
 
 # 1. Functions for the main route (404 not found solution in browser)
 @app.route('/', methods=['GET'])
 def home():
-    return jsonify({
-        "status": "online",
-        "project": "Gemini AI Summarizer Agent",
-        "developer": "Md Liton Hosain",
-        "message": "Welcome! Please send a POST request to /agent with your text to get a summary."
-    })
+    return render_template('index.html')
+
+# 3. Health check root (To check if the server is OK to render)
+@app.route('/health', methods=['GET'])
+def health():
+    return jsonify({"status": "online", "developer": "Md Liton Hosain"})
 
 # 3. The main function of an AI agent
 @app.route('/agent', methods=['POST'])
