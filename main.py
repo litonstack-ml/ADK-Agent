@@ -1,5 +1,5 @@
 import os
-from flask import Flask, request, jsonify, render_template
+from flask import Flask, request, jsonify
 from flask_cors import CORS
 import google.generativeai as genai
 from dotenv import load_dotenv
@@ -14,7 +14,10 @@ CORS(app)
 # 1. Functions for the main route (404 not found solution in browser)
 @app.route('/', methods=['GET'])
 def home():
-    return render_template('index.html')
+    return jsonify({
+        "status": "backend online",
+        "message": "AI Agent Backend is running. Frontend should call /agent"
+    })
 
 # 3. Health check root (To check if the server is OK to render)
 @app.route('/health', methods=['GET'])
