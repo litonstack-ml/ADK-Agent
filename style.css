@@ -265,7 +265,7 @@ body::before {
 }
 
 .message-bubble {
-    max-width: 75%;
+    max-width: 100%;
     padding: 0.9rem 1.2rem;
     border-radius: 20px;
     background: var(--agent-msg-bg);
@@ -279,7 +279,6 @@ body::before {
 }
 
 .message-bubble p {
-    max-width: 75%;
     padding: 0.8rem 1rem;
     border-radius: 18px;
     background: var(--agent-msg-bg);
@@ -287,8 +286,10 @@ body::before {
     font-size: 0.92rem;
     font-weight: 400;
     color: var(--text-primary);
-    white-space: pre-wrap;
+    white-space: normal;
     word-break: break-word;
+    overflow-wrap: break-word;
+    max-width: 100%;
 }
 
 .message-meta {
@@ -308,6 +309,21 @@ body::before {
 .read-status {
     font-size: 0.65rem;
     opacity: 0.6;
+}
+
+/* Agent message*/
+.message.agent .message-bubble {
+    background: transparent;
+    backdrop-filter: none;
+    border: none;
+    padding: 0;
+    max-width: 100%;
+}
+
+.message.agent .message-bubble p {
+    background: transparent;
+    padding: 0;
+    margin: 0;
 }
 
 /* User message alignment */
@@ -766,22 +782,235 @@ textarea::placeholder {
     }
 }
 
-@media (max-width: 480px) {
-    .status-panel {
-        gap: 0.8rem;
+/* Mobile device responsive design */
+@media (max-width: 768px) {
+    body {
+        padding: 0;
+    }
+
+    .app-wrapper {
+        height: 100vh;
+        border-radius: 0;
+    }
+
+    .chat-container {
+        border-radius: 0;
+    }
+
+    .chat-header {
+        padding: 0.8rem 1rem;
+    }
+
+    .header-brand h1 {
+        font-size: 1rem;
+    }
+
+    .logo-icon {
+        width: 36px;
+        height: 36px;
+    }
+
+    .logo-icon svg {
+        width: 20px;
+        height: 20px;
+    }
+
+    /* Hide status text */
+    .status-text {
+        display: none;
+    }
+
+    .pulse-dot {
+        width: 8px;
+        height: 8px;
     }
 
     .dev-credit {
-        font-size: 0.7rem;
+        font-size: 0.65rem;
+        padding: 0.2rem 0.6rem;
+    }
+
+    .chat-messages {
+        padding: 1rem;
+    }
+
+    /* Mobile message bubble sizing */
+    .message-bubble {
+        max-width: 90%;
+    }
+
+    .message-bubble p {
+        font-size: 0.85rem;
+        line-height: 1.5;
+    }
+
+    /* Touch devices button size */
+    .send-button {
+        padding: 0.7rem 1rem;
+        min-height: 44px;
+    }
+
+    .send-button svg {
+        width: 18px;
+        height: 18px;
+    }
+
+    .input-container {
+        padding: 0.3rem;
+    }
+
+    textarea {
+        font-size: 16px;
+        /* Hide status text */
+        padding: 0.7rem 0.8rem;
+    }
+
+    .input-hint {
+        font-size: 0.65rem;
+    }
+
+    /* Modal for mobile devices */
+    .modal-content {
+        width: 95%;
+        margin: 10% auto;
+        max-height: 80vh;
+    }
+
+    .modal-header {
+        padding: 1rem;
+    }
+
+    .modal-header h2 {
+        font-size: 1.1rem;
+    }
+
+    .modal-body {
+        padding: 1rem;
+    }
+
+    .history-item {
+        padding: 0.8rem;
+    }
+
+    .history-question {
+        font-size: 0.8rem;
+    }
+
+    .history-answer {
+        font-size: 0.75rem;
+    }
+
+    /* Touch hover effect removal */
+    .history-button:hover {
+        transform: none;
+    }
+
+    .delete-all-btn:hover {
+        transform: none;
+    }
+}
+
+/* For small devices */
+@media (max-width: 480px) {
+    .header-brand {
+        gap: 0.5rem;
+    }
+
+    .brand-info h1 {
+        font-size: 0.9rem;
+    }
+
+    .badge-pro {
+        font-size: 0.6rem;
+        padding: 0.15rem 0.5rem;
+    }
+
+    .status-panel {
+        gap: 0.5rem;
+    }
+
+    .history-button {
+        padding: 0.4rem;
+    }
+
+    .history-button svg {
+        width: 16px;
+        height: 16px;
+    }
+
+    .dev-credit {
+        display: none;
+        /* Hide developer credit on small devices */
+    }
+
+    .message-content {
+        gap: 0.5rem;
+    }
+
+    .avatar {
+        width: 28px;
+        height: 28px;
+        font-size: 0.9rem;
     }
 
     .message-bubble {
         max-width: 95%;
     }
 
-    .history-controls {
-        flex-direction: column;
-        gap: 0.8rem;
-        align-items: flex-start;
+    .message-bubble p {
+        font-size: 0.8rem;
+        padding: 0.6rem 0.8rem;
+    }
+
+    .message-meta {
+        font-size: 0.6rem;
+        margin-top: 0.4rem;
+    }
+
+    .input-hint span:first-child {
+        display: none;
+        /* "Hide ⌘ + Enter to send" */
+    }
+
+    .send-button span {
+        display: inline;
+        /* Hide "Summarize" text on small devices */
+        font-size: 0.75rem;
+    }
+}
+
+/* For large devices (tablets) */
+@media (min-width: 769px) and (max-width: 1024px) {
+    .app-wrapper {
+        max-width: 95%;
+        height: 85vh;
+    }
+
+    .message-bubble {
+        max-width: 70%;
+    }
+}
+
+/* For landscape mode */
+@media (max-height: 600px) and (orientation: landscape) {
+    .app-wrapper {
+        height: 95vh;
+    }
+
+    .chat-header {
+        padding: 0.5rem 1rem;
+    }
+
+    .chat-messages {
+        padding: 0.8rem;
+    }
+
+    .message-bubble p {
+        font-size: 0.8rem;
+        padding: 0.5rem 0.8rem;
+    }
+
+    .chat-input-area {
+        padding: 0.5rem;
     }
 }

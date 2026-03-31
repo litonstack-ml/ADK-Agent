@@ -226,20 +226,38 @@ function addMessage(text, sender, isError = false) {
     const avatarIcon = sender === 'user' ? '👤' : '✨';
     const avatarClass = sender === 'user' ? 'user-avatar' : 'agent-avatar';
 
-    const messageHTML = `
-        <div class="message-content">
-            <div class="avatar ${avatarClass}">${avatarIcon}</div>
-            <div class="message-bubble">
-                <p>${escapeHtml(text)}</p>
-                <div class="message-meta">
-                    <span class="time-stamp">${formatTime(new Date())}</span>
-                    ${!isError ? '<span class="read-status">● Delivered</span>' : '<span class="read-status" style="color: #ef4444;">● Error</span>'}
+    // Agent message
+    if (sender === 'agent') {
+        const messageHTML = `
+            <div class="message-content">
+                <div class="avatar ${avatarClass}">${avatarIcon}</div>
+                <div class="message-bubble" style="background: transparent; border: none; padding: 0; max-width: 100%;">
+                    <p style="background: transparent; padding: 0; margin: 0; white-space: normal; word-break: break-word; overflow-wrap: break-word;">${escapeHtml(text)}</p>
+                    <div class="message-meta">
+                        <span class="time-stamp">${formatTime(new Date())}</span>
+                        ${!isError ? '<span class="read-status">● Delivered</span>' : '<span class="read-status" style="color: #ef4444;">● Error</span>'}
+                    </div>
                 </div>
             </div>
-        </div>
-    `;
+        `;
+        messageDiv.innerHTML = messageHTML;
+    } else {
+        // User message
+        const messageHTML = `
+            <div class="message-content">
+                <div class="avatar ${avatarClass}">${avatarIcon}</div>
+                <div class="message-bubble">
+                    <p>${escapeHtml(text)}</p>
+                    <div class="message-meta">
+                        <span class="time-stamp">${formatTime(new Date())}</span>
+                        ${!isError ? '<span class="read-status">● Delivered</span>' : '<span class="read-status" style="color: #ef4444;">● Error</span>'}
+                    </div>
+                </div>
+            </div>
+        `;
+        messageDiv.innerHTML = messageHTML;
+    }
 
-    messageDiv.innerHTML = messageHTML;
     chatMessages.appendChild(messageDiv);
     chatMessages.scrollTop = chatMessages.scrollHeight;
 }
@@ -471,6 +489,37 @@ async function testConnection() {
         console.warn('⚠️ API Connection: Unable to reach server. Please verify ngrok URL is active.');
     }
 }
+
+// Mobile responsiveness: Scroll to bottom on resize
+window.addEventListener('resize', () => {
+    if (chatMessages) {
+        setTimeout(() => {
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }, 100);
+    }
+});
+
+// Mobile responsiveness: Scroll to botom when input is focused
+if (userInput) {
+    userInput.addEventListener('focus', () => {
+        setTimeout(() => {
+            if (chatMessages) {
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            }
+        }, 300);
+    });
+}
+
+// Remove active state for touch devices
+const buttons = document.querySelectorAll('button');
+buttons.forEach(btn => {
+    btn.addEventListener('touchstart', function() {
+        this.style.opacity = '0.7';
+    });
+    btn.addEventListener('touchend', function() {
+        this.style.opacity = '1';
+    });
+});
 
 // Uncomment to test connection silently (optional)
 // testConnection();
