@@ -1,5 +1,5 @@
 // API Configuration
-const API_URL = 'https://proindustrialisation-fillingly-jerrica.ngrok-free.dev';
+const API_URL = 'https://adk-agent-o788.onrender.com';
 
 // DOM Elements
 const chatMessages = document.getElementById('chatMessages');
